@@ -1,5 +1,6 @@
 class PhotosController < ApplicationController
   before_action :set_photo, only: %i[ show edit update destroy ]
+  before_action :ensure_user_is_owner, only: [:update, :destroy, :edit]
 
   # GET /photos or /photos.json
   def index
@@ -14,6 +15,7 @@ class PhotosController < ApplicationController
   def new
     @photo = Photo.new
   end
+
 
   # GET /photos/1/edit
   def edit
@@ -36,6 +38,7 @@ class PhotosController < ApplicationController
   end
 
   # PATCH/PUT /photos/1 or /photos/1.json
+
   def update
     respond_to do |format|
       if @photo.update(photo_params)
@@ -56,6 +59,12 @@ class PhotosController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  def ensure_user_is_owner
+    if current_user != @photo.owner
+      redirect_back(fallback_location: root_path, alert: "Nice Try, Sucker")
+    end 
+  end 
 
   private
     # Use callbacks to share common setup or constraints between actions.
