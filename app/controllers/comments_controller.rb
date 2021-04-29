@@ -1,5 +1,6 @@
 class CommentsController < ApplicationController
   before_action :set_comment, only: %i[ show edit update destroy ]
+  before_action :ensure_user_is_owner, only: [:update, :destroy, :edit]
 
   # GET /comments or /comments.json
   def index
@@ -56,6 +57,12 @@ class CommentsController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  def ensure_user_is_owner
+    if current_user != @comment.author
+      redirect_back(fallback_location: root_path, alert: "Nice Try, Sucker")
+    end 
+  end 
 
   private
     # Use callbacks to share common setup or constraints between actions.
